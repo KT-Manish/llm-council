@@ -3,15 +3,42 @@ import ReactMarkdown from 'react-markdown';
 import Stage1 from './Stage1';
 import Stage2 from './Stage2';
 import Stage3 from './Stage3';
+import VoiceButton from './VoiceButton';
+import useVoiceChat from '../hooks/useVoiceChat';
 import './ChatInterface.css';
 
 export default function ChatInterface({
   conversation,
   onSendMessage,
   isLoading,
+  onVoiceTranscription,
+  onVoiceStageUpdate,
 }) {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef(null);
+
+  // Voice chat hook with stage update handler
+  const handleVoiceStageUpdate = (eventType, data, metadata) => {
+    // Handle transcription specially to update input and add messages
+    if (eventType === 'transcription') {
+      setInput(data || '');
+      if (onVoiceTranscription) {
+        onVoiceTranscription(data);
+      }
+      setInput(''); // Clear after sending
+      return;
+    }
+    if (onVoiceStageUpdate) {
+      onVoiceStageUpdate(eventType, data, metadata);
+    }
+  };
+
+  const {
+    isRecording,
+    isProcessing,
+    error: voiceError,
+    toggleRecording,
+  } = useVoiceChat(conversation?.id, handleVoiceStageUpdate);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -41,7 +68,7 @@ export default function ChatInterface({
     return (
       <div className="chat-interface">
         <div className="empty-state">
-          <h2>Welcome to LLM Council</h2>
+          <h2>Welcome to KT LLM Debate</h2>
           <p>Create a new conversation to get started</p>
         </div>
       </div>
@@ -54,7 +81,7 @@ export default function ChatInterface({
         {conversation.messages.length === 0 ? (
           <div className="empty-state">
             <h2>Start a conversation</h2>
-            <p>Ask a question to consult the LLM Council</p>
+            <p>Ask a question to consult the KT LLM Debate</p>
           </div>
         ) : (
           conversation.messages.map((msg, index) => (
@@ -70,7 +97,7 @@ export default function ChatInterface({
                 </div>
               ) : (
                 <div className="assistant-message">
-                  <div className="message-label">LLM Council</div>
+                  <div className="message-label">KT LLM Debate</div>
 
                   {/* Stage 1 */}
                   {msg.loading?.stage1 && (
@@ -128,16 +155,27 @@ export default function ChatInterface({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            disabled={isLoading}
+            disabled={isLoading || isRecording || isProcessing}
             rows={3}
           />
-          <button
-            type="submit"
-            className="send-button"
-            disabled={!input.trim() || isLoading}
-          >
-            Send
-          </button>
+          <div className="input-actions">
+            <VoiceButton
+              isRecording={isRecording}
+              isProcessing={isProcessing}
+              onClick={toggleRecording}
+              disabled={isLoading || !!input.trim()}
+            />
+            <button
+              type="submit"
+              className="send-button"
+              disabled={!input.trim() || isLoading || isRecording || isProcessing}
+            >
+              Send
+            </button>
+          </div>
+          {voiceError && (
+            <div className="voice-error">{voiceError}</div>
+          )}
         </form>
       )}
     </div>
