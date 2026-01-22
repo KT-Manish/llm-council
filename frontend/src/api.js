@@ -1,8 +1,8 @@
 /**
- * API client for the KT LLM Debate backend.
+ * API client for the KT LLM Council backend.
  */
 
-const API_BASE = 'http://localhost:8001';
+const API_BASE = '';
 
 // Store token in memory
 let authToken = null;
@@ -29,7 +29,7 @@ async function authFetch(url, options = {}) {
     // Clear token and redirect to login
     authToken = null;
     localStorage.removeItem('token');
-    window.location.href = '/login';
+    window.location.href = '/council/login';
     throw new Error('Unauthorized');
   }
 
@@ -235,7 +235,8 @@ export const api = {
    * Get the WebSocket URL for voice chat with auth token.
    */
   getVoiceWebSocketUrl(conversationId) {
-    const wsBase = API_BASE.replace('http', 'ws');
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsBase = `${protocol}//${window.location.host}`;
     return `${wsBase}/api/conversations/${conversationId}/voice?token=${authToken}`;
   },
 };

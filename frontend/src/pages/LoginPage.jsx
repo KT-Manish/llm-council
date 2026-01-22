@@ -30,7 +30,7 @@ export default function LoginPage() {
   return (
     <div className="login-page">
       <div className="login-container">
-        <h1>KT LLM Debate</h1>
+        <h1>KT LLM Council</h1>
         <p className="login-subtitle">Sign in to continue</p>
 
         <form onSubmit={handleSubmit} className="login-form">

@@ -1,4 +1,4 @@
-"""FastAPI backend for KT LLM Debate."""
+"""FastAPI backend for KT LLM Council."""
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,12 +17,12 @@ from .council import run_full_council, generate_conversation_title, stage1_colle
 from .voice import VoiceChatSession
 from .config import OPENAI_API_KEY, TTS_VOICE, ADMIN_EMAIL, ADMIN_PASSWORD
 
-app = FastAPI(title="KT LLM Debate API")
+app = FastAPI(title="KT LLM Council API")
 
-# Enable CORS for local development
+# Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:3000"],
+    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:3000", "https://llm-debate.kuware.ai"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -113,7 +113,7 @@ async def startup_event():
 @app.get("/")
 async def root():
     """Health check endpoint."""
-    return {"status": "ok", "service": "KT LLM Debate API"}
+    return {"status": "ok", "service": "KT LLM Council API"}
 
 
 # ============================================================
@@ -426,4 +426,4 @@ async def voice_chat_endpoint(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    uvicorn.run(app, host="0.0.0.0", port=8005)
