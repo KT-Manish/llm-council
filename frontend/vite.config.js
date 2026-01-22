@@ -5,4 +5,12 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/council/',
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8005',
+        changeOrigin: true,
+      },
+    },
+  },
 })

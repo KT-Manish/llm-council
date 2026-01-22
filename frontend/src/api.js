@@ -2,7 +2,7 @@
  * API client for the KT LLM Council backend.
  */
 
-const API_BASE = '';
+const API_BASE = '/council';
 
 // Store token in memory
 let authToken = null;
@@ -57,8 +57,12 @@ export const api = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'Login failed');
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const error = await response.json();
+        throw new Error(error.detail || 'Login failed');
+      }
+      throw new Error('Login failed - server returned an unexpected response');
     }
 
     return response.json();
